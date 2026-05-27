@@ -1360,6 +1360,7 @@ function enterApp(){
 // ===================== HEADER =====================
 
 let currentTab='simulator';
+let rankingToken=0;
 
 function renderHeader(){
   const h=document.getElementById('header');
@@ -1831,19 +1832,22 @@ function lockPalpite(){
 // ===================== RANKING =====================
 
 async function renderRanking(){
+  const myToken=++rankingToken;
   const c=document.getElementById('content');
   c.innerHTML=`<div style="text-align:center;padding:4rem 1rem;color:var(--text-dim)"><div style="font-size:2rem;margin-bottom:1rem">⏳</div><div>Carregando ranking...</div></div>`;
 
   // Pull from Firebase and merge into local AppState
   try{
     const fbParts = await fbLoadParticipants();
+    if(myToken!==rankingToken) return;
     if(fbParts && Object.keys(fbParts).length){
       Object.assign(AppState.participants, fbParts);
       saveState();
     }
     await fbPullRealResults();
+    if(myToken!==rankingToken) return;
     recalcAllScores();
-  } catch(e){ console.warn('Firebase pull:', e); }
+  } catch(e){ console.warn('Firebase pull:', e); if(myToken!==rankingToken) return; }
 
   const participants=Object.entries(AppState.participants)
     .filter(([,p])=>p.locked)
@@ -1945,6 +1949,7 @@ function showAdminPrompt(){
 }
 
 function renderAdminPanel(){
+  rankingToken++;
   const c=document.getElementById('content');
   const rr=AppState.realResults;
 
