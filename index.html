@@ -2094,18 +2094,17 @@ function renderAdminPanel(){
   };
 
   document.getElementById('admin-reset-local').onclick=()=>{
-    showModal('<h3 style="color:var(--red)">⚠️ Limpar dados locais?</h3><p>Isso apaga <strong>todos os palpites salvos neste navegador</strong>. Os dados no Firebase não são afetados.</p>',()=>{
-      localStorage.removeItem('bolao2026');
-      AppState = {
-        currentUser: null,
-        participants: {},
-        realResults: { groups:{}, bestThirds:[], bracket:{r32:[],r16:[],qf:[],sf:[],champion:''}, topScorer:'' },
-        scores: {}
-      };
-      document.getElementById('app').style.display = 'none';
-      document.getElementById('entry-overlay').style.display = 'flex';
-      renderEntry();
-    },'🗑️ LIMPAR','Cancelar');
+    if(!window.confirm('Apagar todos os palpites salvos neste navegador? Os dados no Firebase não serão afetados.')) return;
+    localStorage.removeItem('bolao2026');
+    AppState = {
+      currentUser: null,
+      participants: {},
+      realResults: { groups:{}, bestThirds:[], bracket:{r32:[],r16:[],qf:[],sf:[],champion:''}, topScorer:'' },
+      scores: {}
+    };
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('entry-overlay').style.display = 'flex';
+    renderEntry();
   };
 
   document.getElementById('admin-export').onclick=()=>{
@@ -2136,16 +2135,15 @@ function renderAdminPanel(){
   document.querySelectorAll('[data-del]').forEach(b=>{
     b.addEventListener('click',()=>{
       const name=b.dataset.del;
-      showModal(`<h3>Remover participante?</h3><p>Deseja remover <strong>${name}</strong>?</p>`,()=>{
-        const code=AppState.participants[name]?.code;
-        delete AppState.participants[name];
-        delete AppState.scores[name];
-        if(AppState.currentUser===name) AppState.currentUser=null;
-        saveState();
-        if(code) fbDeleteParticipant(code).catch(e=>console.warn('fbDel:',e));
-        renderAdminPanel();
-        showToast(`${name} removido.`);
-      });
+      if(!window.confirm(`Remover "${name}" do bolão?`)) return;
+      const code=AppState.participants[name]?.code;
+      delete AppState.participants[name];
+      delete AppState.scores[name];
+      if(AppState.currentUser===name) AppState.currentUser=null;
+      saveState();
+      if(code) fbDeleteParticipant(code).catch(e=>console.warn('fbDel:',e));
+      renderAdminPanel();
+      showToast(`${name} removido.`);
     });
   });
 }
