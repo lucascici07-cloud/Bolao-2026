@@ -1145,7 +1145,9 @@ function showModal(html, onConfirm, confirmLabel='Confirmar', cancelLabel='Cance
 
 function hideModal(){
   const mo=document.getElementById('modal-overlay');
-  gsap.to(document.getElementById('modal-box'),{scale:.8,opacity:0,duration:.2,onComplete:()=>mo.style.display='none'});
+  mo.style.display='none';
+  const mb=document.getElementById('modal-box');
+  if(mb){mb.innerHTML='';gsap.set(mb,{scale:1,opacity:1});}
 }
 
 // ===================== SCORING =====================
